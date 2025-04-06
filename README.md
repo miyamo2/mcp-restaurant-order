@@ -1,6 +1,6 @@
 # mcp-restaurant-order
 
-MCP server implementation. Just a toy.
+MCP(Model Context Protocol) server implementation. Just a toy.
 
 ## Quick Start
 

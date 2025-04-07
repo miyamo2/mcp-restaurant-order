@@ -8,10 +8,10 @@ import (
 )
 
 type GetMenuArguments struct {
-	Name         *string `json:"name" jsonschema:"description=The name of the menu. An empty string is considered a search condition."`
-	LowestPrice  *uint32 `json:"lowest_price" jsonschema:"description=The lowest price of the menu. in japanese yen."`
-	HighestPrice *uint32 `json:"highest_price" jsonschema:"description=The highest price of the menu. in japanese yen."`
-	Category     *string `json:"category" jsonschema:"description=The category of the menu. An empty string is considered a search condition. Only the following values are valid. main | tapas | dessert | beverage"`
+	Name         *string `json:"name,omitempty" jsonschema:"description=The name of the menu. If not filtered by name, it must be set to null or the item must be omitted."`
+	LowestPrice  *uint32 `json:"lowest_price,omitempty" jsonschema:"description=The lowest price of the menu. in japanese yen. If not filtered by lowest price, it must be set to null or the item must be omitted."`
+	HighestPrice *uint32 `json:"highest_price,omitempty" jsonschema:"description=The highest price of the menu. in japanese yen.  If not filtered by highest price, it must be set to null or the item must be omitted."`
+	Category     *string `json:"category,omitempty" jsonschema:"description=The category of the menu. If not filtered by category, it must be set to null or the item must be omitted. only the following values are valid. main | tapas | dessert | beverage"`
 }
 
 type OrderArguments struct {
@@ -19,13 +19,13 @@ type OrderArguments struct {
 }
 
 type Order struct {
-	Name     string `json:"name" jsonschema:"description=The name of the menu"`
+	Name     string `json:"name" jsonschema:"description=The name of the menu."`
 	Quantity uint32 `json:"quantity" jsonschema:"description=The quantity per menu"`
 }
 type Menu struct {
 	Name     string `json:"name" jsonschema:"description=The name of the menu"`
 	Price    uint32 `json:"price" jsonschema:"description=The price of the menu. in japanese yen."`
-	Category string `json:"category" jsonschema:"description=The category of the menu. Only the following values are provide. main | tapas | dessert | beverage"`
+	Category string `json:"category" jsonschema:"description=The category of the menu. only the following values are provide. main | tapas | dessert | beverage"`
 }
 
 type Billing struct {

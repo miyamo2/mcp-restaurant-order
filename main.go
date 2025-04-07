@@ -8,10 +8,10 @@ import (
 )
 
 type GetMenuArguments struct {
-	Name         *string `json:"name,omitempty" jsonschema:"description=The name of the menu. If not filtered by name, it must be set to null or the item must be omitted."`
-	LowestPrice  *uint32 `json:"lowest_price,omitempty" jsonschema:"description=The lowest price of the menu. in japanese yen. If not filtered by lowest price, it must be set to null or the item must be omitted."`
-	HighestPrice *uint32 `json:"highest_price,omitempty" jsonschema:"description=The highest price of the menu. in japanese yen.  If not filtered by highest price, it must be set to null or the item must be omitted."`
-	Category     *string `json:"category,omitempty" jsonschema:"description=The category of the menu. If not filtered by category, it must be set to null or the item must be omitted. only the following values are valid. main | tapas | dessert | beverage"`
+	Name         *string `json:"name" jsonschema_description:"The name of the menu."`
+	LowestPrice  *uint32 `json:"lowest_price" jsonschema_description:"The lowest price of the menu. in japanese yen."`
+	HighestPrice *uint32 `json:"highest_price" jsonschema_description:"The highest price of the menu. in japanese yen."`
+	Category     *string `json:"category" jsonschema_description:"The category of the menu. Only the following values are valid. main | tapas | dessert | beverage"`
 }
 
 type OrderArguments struct {
@@ -19,18 +19,24 @@ type OrderArguments struct {
 }
 
 type Order struct {
-	Name     string `json:"name" jsonschema:"description=The name of the menu."`
-	Quantity uint32 `json:"quantity" jsonschema:"description=The quantity per menu"`
+	Name     string `json:"name" jsonschema:"required" jsonschema_description:"The name of the menu. must be exist in the menu. also, case sensitive."`
+	Quantity uint32 `json:"quantity" jsonschema:"required" jsonschema_description:"The quantity per menu"`
 }
 type Menu struct {
-	Name     string `json:"name" jsonschema:"description=The name of the menu"`
-	Price    uint32 `json:"price" jsonschema:"description=The price of the menu. in japanese yen."`
-	Category string `json:"category" jsonschema:"description=The category of the menu. only the following values are provide. main | tapas | dessert | beverage"`
+	Name     string `json:"name" jsonschema:"required" jsonschema_description:"The name of the menu."`
+	Price    uint32 `json:"price" jsonschema:"required" jsonschema_description:"The price of the menu. in japanese yen."`
+	Category string `json:"category" jsonschema:"required" jsonschema_description:"The category of the menu. only the following values are provide. main | tapas | dessert | beverage"`
+}
+
+type BillingDetail struct {
+	Name     string `json:"name" jsonschema:"required" jsonschema_description:"The name of the menu."`
+	Quantity uint32 `json:"quantity" jsonschema:"required" jsonschema_description:"The quantity per menu"`
+	Amount   uint32 `json:"amount" jsonschema:"required" jsonschema_description:"The amount per menu. in japanese yen."`
 }
 
 type Billing struct {
-	Orders      []Order `json:"orders" jsonschema:"description=The list of orders"`
-	TotalAmount uint32  `json:"total_amount" jsonschema:"description=The total amount of the order. in japanese yen."`
+	Details     []BillingDetail `json:"billing_details" jsonschema:"required" jsonschema_description:"The list of billing details."`
+	TotalAmount uint32          `json:"total_amount" jsonschema:"required" jsonschema_description:"The total amount of the order. in japanese yen."`
 }
 
 func main() {
@@ -64,7 +70,7 @@ func main() {
 	}
 	err = server.RegisterTool("miyamo2_diner_accept_order", "miyamo2 diner will accept your order and return the total amount in Japanese yen.", func(arguments OrderArguments) (*mcp_golang.ToolResponse, error) {
 		var (
-			orders      []Order
+			details     []BillingDetail
 			totalAmount uint32
 		)
 		for _, order := range arguments.Orders {
@@ -75,11 +81,16 @@ func main() {
 			if order.Quantity == 0 {
 				continue
 			}
-			totalAmount += menu.Price * order.Quantity
-			orders = append(orders, order)
+			amount := menu.Price * order.Quantity
+			totalAmount += amount
+			details = append(details, BillingDetail{
+				Name:     menu.Name,
+				Quantity: order.Quantity,
+				Amount:   amount,
+			})
 		}
 		billing := Billing{
-			Orders:      orders,
+			Details:     details,
 			TotalAmount: totalAmount,
 		}
 		result, err := json.Marshal(billing)

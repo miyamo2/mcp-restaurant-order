@@ -2,6 +2,16 @@
 
 MCP(Model Context Protocol) server implementation. Just a toy.
 
+## Demo
+
+### With English Prompt
+
+![Demo](./.assets/demo.gif)
+
+### With Japanese Prompt
+
+![Demo_ja](./.assets/demo_ja.gif)
+
 ## Quick Start
 
 ### Install
